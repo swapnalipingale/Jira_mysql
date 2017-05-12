@@ -4,8 +4,6 @@ ENV HOME /root
 
 RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 
-CMD ["/sbin/my_init"]
-
 # Some Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -41,7 +39,9 @@ RUN chmod +x /etc/service/jira/run
 
 EXPOSE 8080
 
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+#RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+CMD ["/sbin/my_init"]
 
 # MySQL database variables
 ENV MYSQL_USER admin
