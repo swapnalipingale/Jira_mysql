@@ -9,9 +9,6 @@ ENV DOWNLOAD_URL https://www.atlassian.com/software/jira/downloads/binary/atlass
 ENV JIRA_HOME /var/atlassian/application-data/jira
 ENV JIRA_INSTALL_DIR /opt/atlassian/jira
 
-RUN apt-get update
-RUN apt-get install -y wget git default-jre
-
 RUN set -x \
     && apt-get update --quiet \
     && apt-get install --quiet --yes --no-install-recommends -t jessie-backports libtcnative-1 \
