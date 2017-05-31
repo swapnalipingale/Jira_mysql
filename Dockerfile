@@ -6,18 +6,23 @@ ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
 
 ENV DOWNLOAD_URL https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-7.3.6.tar.gz
-
 ENV JIRA_HOME /var/atlassian/application-data/jira
 ENV JIRA_INSTALL_DIR /opt/atlassian/jira
 
 RUN apt-get update
 RUN apt-get install -y wget git default-jre
 
-RUN sudo /bin/sh -c 'echo JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/jre/bin/java::") >> /etc/environment'
-RUN sudo /bin/sh -c 'echo JIRA_HOME=${JIRA_HOME} >> /etc/environment'
-
-RUN mkdir -p /opt/atlassian
-RUN mkdir -p ${JIRA_HOME}
+RUN set -x \
+    && apt-get update --quiet \
+    && apt-get install --quiet --yes --no-install-recommends -t jessie-backports libtcnative-1 \
+    && apt-get clean \
+    && mkdir -p                "${JIRA_HOME}" \
+    && mkdir -p                "${JIRA_HOME}/caches/indexes" \
+    && chmod -R 700            "${JIRA_HOME}" \
+    && mkdir -p                "${JIRA_INSTALL_DIR}/conf/Catalina" \
+    && sed --in-place          "s/java version/openjdk version/g" "${JIRA_INSTALL_DIR}/bin/check-java.sh" \
+    && echo -e                 "\njira.home=$JIRA_HOME" >> "${JIRA_INSTALL_DIR}/atlassian-jira/WEB-INF/classes/jira-application.properties" \
+    && touch -d "@0"           "${JIRA_INSTALL}/conf/server.xml"
 
 RUN wget -P /tmp ${DOWNLOAD_URL}
 RUN tar zxf /tmp/atlassian-jira-7.3.6.tar.gz -C /tmp
