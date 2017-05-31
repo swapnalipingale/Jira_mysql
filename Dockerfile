@@ -1,4 +1,5 @@
-FROM phusion/baseimage:0.9.12
+FROM openjdk:8
+MAINTAINER Swapnali Pingale <yeole.swapnali@gmail.com>
 
 ENV HOME /root
 
@@ -6,10 +7,9 @@ RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV DOWNLOAD_URL https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-6.3.15.tar.gz
+ENV DOWNLOAD_URL https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-7.3.6.tar.gz
 
 ENV JIRA_HOME /var/atlassian/application-data/jira
-
 ENV JIRA_INSTALL_DIR /opt/atlassian/jira
 
 RUN apt-get update
@@ -22,17 +22,18 @@ RUN mkdir -p /opt/atlassian
 RUN mkdir -p ${JIRA_HOME}
 
 RUN wget -P /tmp ${DOWNLOAD_URL}
-RUN tar zxf /tmp/atlassian-jira-6.3.15.tar.gz -C /tmp
-RUN mv /tmp/atlassian-jira-6.3.15-standalone /tmp/jira
+RUN tar zxf /tmp/atlassian-jira-7.3.6.tar.gz -C /tmp
+RUN mv /tmp/atlassian-jira-software-7.3.6-x64.bin /tmp/jira
 RUN mv /tmp/jira /opt/atlassian/
 
-RUN wget -P /tmp http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.34.tar.gz
-RUN tar zxf /tmp/mysql-connector-java-5.1.34.tar.gz -C /tmp
-RUN mv /tmp/mysql-connector-java-5.1.34/mysql-connector-java-5.1.34-bin.jar ${JIRA_INSTALL_DIR}/lib/
+RUN wget -P /tmp http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.38.tar.gz
+RUN tar zxf /tmp/mysql-connector-java-5.1.38.tar.gz -C /tmp
+RUN mv /tmp/mysql-connector-java-5.1.38/mysql-connector-java-5.1.38-bin.jar ${JIRA_INSTALL_DIR}/lib/
 
-RUN mkdir /etc/service/jira
-ADD runit/jira.sh /etc/service/jira/run
-RUN chmod +x /etc/service/jira/run
+VOLUME ["/var/atlassian/application-data/jira", "/opt/atlassian/jira/logs"]
+WORKDIR /opt/atlassian/jira
+
+CMD ["/opt/atlassian/jira/bin/start-jira.sh", "run"]
 
 EXPOSE 8080
 
@@ -49,10 +50,11 @@ RUN apt-get install -y mysql-server
 RUN rm -rf /var/lib/mysql/*
 
 ADD build/my.cnf /etc/mysql/my.cnf
+ADD build/dbconfig.xml /var/atlassian/application-data/jira
 
-RUN mkdir /etc/service/mysql
-ADD runit/mysql.sh /etc/service/mysql/run
-RUN chmod +x /etc/service/mysql/run
+RUN mkdir /etc/mysql/run
+ADD runit/mysql.sh /etc/mysql/run
+RUN chmod +x /etc/mysql/run
 
 ADD build/setup /root/setup
 
