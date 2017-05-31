@@ -3,8 +3,6 @@ MAINTAINER Swapnali Pingale <yeole.swapnali@gmail.com>
 
 ENV HOME /root
 
-RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
-
 ENV DEBIAN_FRONTEND noninteractive
 
 ENV DOWNLOAD_URL https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-7.3.6.tar.gz
