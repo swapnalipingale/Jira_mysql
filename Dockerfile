@@ -12,6 +12,7 @@ ENV JIRA_VERSION  7.3.6
 RUN set -x \
     && apt-get update --quiet \
     && apt-get install --quiet --yes --no-install-recommends -t jessie-backports libtcnative-1 \
+    && apt-get install -y wget git default-jre
     && apt-get clean \
     && mkdir -p                "${JIRA_HOME}" \
     && mkdir -p                "${JIRA_HOME}/caches/indexes" \
